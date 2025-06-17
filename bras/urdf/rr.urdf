@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<robot name="turret">
+<material name="matbase">
+        <color rgba="1 1 1 1"/>
+      </material>
+ <material name="mat3">
+        <color rgba="1 1 1 1"/>
+      </material>
+ <material name="mat2">
+        <color rgba=".8 0 0 1"/>
+      </material>
+ <material name="mat1">
+        <color rgba=".0 0 0 1"/>
+      </material>
+ <material name="mat4">
+        <color rgba=".0 1 0 1"/>
+      </material>
+
+<!-- Links -->
+
+<link name="base_link">
+<visual>
+<geometry>
+        <cylinder length="0.06" radius="0.02"/>
+</geometry>
+ <material name="mat1"/>
+    </visual>
+</link>
+
+<link name="link1">
+  <visual>
+<origin xyz="0.1 0 0.0" rpy="0 1.57079632679 0" />
+<geometry>
+        <cylinder length="0.2" radius="0.02"/>
+</geometry>
+ <material name="mat2"/>
+    </visual>
+</link>
+
+<link name="link1_1">
+  <visual>
+<geometry>
+        <cylinder length="0.05" radius="0.02"/>
+</geometry>
+ <material name="mat1"/>
+    </visual>
+</link>
+
+
+
+<link name="link2">
+  <visual>
+<origin xyz="0.075 0 0.0" rpy="0 1.57079632679 0" />
+<geometry>
+        <cylinder length="0.15" radius="0.02"/>
+</geometry>
+ <material name="mat4"/>
+    </visual>
+</link>
+
+<link name="tool0">
+<visual>
+        <origin xyz="0 0 .001" rpy="0 0 0" />
+<geometry>
+<sphere  radius=".03"/>
+</geometry>
+        <material name="mat3"/>
+    </visual>
+</link>
+
+<!-- Joints -->
+
+	<joint name="joint1" type="revolute">
+        <limit lower="-3.1416" upper="3.1416" effort="10" velocity="3" />
+	<dynamics damping="0.0" friction="0.0"/>
+    	<parent link="base_link" />
+    	<child link="link1" />
+    	<axis xyz="0 0 1" />
+	</joint>
+
+<joint name="l1" type="fixed">
+    	<parent link="link1" />
+    	<child link="link1_1" />
+    	<origin xyz="0.2 0 0.0" rpy="0 0 0" />
+	</joint>
+
+	<joint name="joint2" type="revolute">
+    <origin xyz="0.2 0 0" rpy="0 0 0" />
+        <limit lower="-3.1416" upper="3.1416" effort="10" velocity="3" />
+	<dynamics damping="0.0" friction="0.0"/>
+    	<parent link="link1" />
+    	<child link="link2" />
+    	<axis xyz="0 0 1" />
+	</joint>
+
+	<joint name="ee" type="fixed">
+    	<parent link="link2" />
+    	<child link="tool0" />
+    	<origin xyz="0.15 0 0.0" rpy="0 0 0" />
+	</joint>
+
+</robot>

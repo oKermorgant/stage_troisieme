@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+
+import rclpy
+from rclpy.node import Node
+from std_srvs.srv import Empty
+from sensor_msgs.msg import Joy
+from geometry_msgs.msg import Twist
+from turtlesim.msg import Pose
+from turtlesim.srv import SetPen
+from math import cos, sin, atan2, pi
+from rcl_interfaces.msg import SetParametersResult, ParameterDescriptor, FloatingPointRange
+
+dt = 0.1
+
+
+class Teleop(Node):
+    def __init__(self):
+        super().__init__('tracker', namespace = 'turtle1')
+        
+        
+        # no pen
+        self.pen_srv = self.create_client(SetPen, 'set_pen')
+        self.pen_srv.wait_for_service()
+        no_pen = SetPen.Request(off = 1)
+        res = self.pen_srv.call_async(no_pen)
+        rclpy.spin_until_future_complete(self, res)
+        
+        self.clear_srv = self.create_client(Empty, '/clear')
+        self.t0 = None
+        
+        self.cmd = Twist()
+        self.cmd_vel = self.create_publisher(Twist, 'cmd_vel', 10)
+        
+        self.joy_sub = self.create_subscription(Joy, 'joy', self.joy_cb, 1)
+        
+        self.rgb = [None,None,None]
+        
+        self.timer = self.create_timer(0.05, self.work)
+        
+    def clear(self):
+        req = Empty.Request()
+        self.res = self.clear_srv.call_async(req)
+        
+    def draw(self, r=None, g=None, b=None):
+        if self.rgb == [r,g,b]:
+            return
+        self.rgb = [r,g,b]
+        if r is None or g is None or b is None:
+            off = 1
+        else:
+            off = 0
+        
+        req = SetPen.Request(off = off,r = int(r), g = int(g), b = int(b), width=3)
+        self.res = self.pen_srv.call_async(req)
+
+    def now(self):
+        s,ns = self.get_clock().now().seconds_nanoseconds()
+        if self.t0 is None:
+            self.t0 = s + 1e-9*ns
+        return s + 1e-9*ns - self.t0
+
+    def move(self, vx, vy, w):
+            
+        if abs(vx) < 0.1:
+            vx = 0.
+        if abs(vy) < 0.1:
+            vy = 0.
+        if abs(w) < 0.1:
+            w = 0.
+        
+        self.cmd.linear.x = float(vx)
+        self.cmd.linear.y = float(vy)
+        self.cmd.angular.z = float(w)
+        
+        self.cmd_vel.publish(self.cmd)
+
+    def work(self):
+
+        t = self.now()
+
+        self.move(3., 0, 1)
+
+        r = 255*(cos(t)+1)/2
+        g = 255*(cos(1.2*t+2)+1)/2
+        b = 255*(cos(1.4*t+4)+1)/2
+        self.draw(r,g,b)
+
+        # if t % 2 < 1:
+        #     self.draw(r,255,0)
+        # else:
+        #     self.draw(255,0,0)
+
+    def joy_cb(self, joy):
+            
+        axes = joy.axes
+        buttons = joy.buttons
+        
+        #print(axes)
+        
+        vx = 2*axes[1]
+        vy = axes[0]
+        w = 2*axes[3]
+        
+        self.move(vx, vy, w)
+        
+        if buttons[0] :
+            self.draw(0,130,0)
+        
+        if buttons[1] :
+            self.draw(160,0,0)
+            
+        if buttons[2] :
+            self.draw(0,0,200)
+            
+        if buttons[3] :
+            self.draw(255,200,0)
+            
+        if buttons[8] :
+            self.clear()
+            #self.draw(200,200,200)
+        
+            
+rclpy.init()
+tracker = Teleop()
+
+rclpy.spin(tracker)
+
+# clean exit on Ctrl-C
+tracker.destroy_node()
+rclpy.shutdown()
