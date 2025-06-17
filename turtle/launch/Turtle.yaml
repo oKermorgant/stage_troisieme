@@ -1,4 +1,4 @@
-cmd_ve:
+cmd_vel:
     type: geometry_msgs/Twist
     vx: 
         min: -1

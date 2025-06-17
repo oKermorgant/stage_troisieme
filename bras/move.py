@@ -75,7 +75,8 @@ class Robot(Node):
 
         # TODO have the robot reach a given (x,y,z) position
 
-        self.position = [cos(t), sin(t), 0.1*cos(t)]
+        self.position = [cos(t), sin(t), 0.02*cos(t)]
+        self.position = [0, 0,0.02*cos(t)]
 
 
 rclpy.init()
