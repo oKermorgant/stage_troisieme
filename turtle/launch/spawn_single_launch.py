@@ -1,5 +1,5 @@
 from simple_launch import SimpleLauncher
-
+from simple_launch.events import When, OnProcessExit
 
 def generate_launch_description():
 
@@ -13,7 +13,9 @@ def generate_launch_description():
     # spawn the turtle anyway with name and pose
     # done through a service call in turtlesim
     sl.service('/spawn', request=sl.arg_map('x','y','theta','name'))
-    
-    # sl.node('stage_troisieme', 'track', parameters = sl.arg_map('target'))
+    pen = sl.call_service('set_pen', {'off': 1})
+
+    # with sl.group(when = When(pen, OnProcessExit)):
+    #     sl.node('stage_troisieme', 'track', parameters = sl.arg_map('target'))
 
     return sl.launch_description()

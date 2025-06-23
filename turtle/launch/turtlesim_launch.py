@@ -1,4 +1,5 @@
 from simple_launch import SimpleLauncher
+from simple_launch.events import When, OnProcessExit
 
 
 def generate_launch_description():
@@ -17,12 +18,14 @@ def generate_launch_description():
     with sl.group(ns='turtle1'):
         
         sl.node('joy', 'joy_node')
+
+        pen = sl.call_service('set_pen', {'off': 1})
         
         with sl.group(if_arg='slider'):
             # manual control
             sl.node('slider_publisher', 'slider_publisher',name='turtle1',
                     arguments=[sl.find('stage_troisieme', 'Turtle.yaml')])
-        with sl.group(unless_arg='slider'):
+        with sl.group(unless_arg='slider', when = When(pen, OnProcessExit)):
             sl.node('stage_troisieme', 'loop')
 
     return sl.launch_description()
