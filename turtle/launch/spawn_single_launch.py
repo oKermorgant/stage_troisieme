@@ -14,6 +14,6 @@ def generate_launch_description():
     # done through a service call in turtlesim
     sl.service('/spawn', request=sl.arg_map('x','y','theta','name'))
     
-    sl.node('stage_troisieme', 'track', parameters = sl.arg_map('target'))
+    # sl.node('stage_troisieme', 'track', parameters = sl.arg_map('target'))
 
     return sl.launch_description()

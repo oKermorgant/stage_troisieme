@@ -22,5 +22,7 @@ def generate_launch_description():
             # manual control
             sl.node('slider_publisher', 'slider_publisher',name='turtle1',
                     arguments=[sl.find('stage_troisieme', 'Turtle.yaml')])
+        with sl.group(unless_arg='slider'):
+            sl.node('stage_troisieme', 'loop')
 
     return sl.launch_description()
