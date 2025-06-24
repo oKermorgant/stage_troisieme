@@ -27,18 +27,21 @@ class Robot(Node):
 
         self.tf_timer = self.create_timer(1, self.print)
 
-    def print(self):
-        if self.js is None:
-            return
-
+    def sphere(self):
         now = rclpy.time.Time()
         if not self.buffer.can_transform('tool0', 'base_link', now):
             return
         p = self.buffer.lookup_transform('tool0', 'base_link', now).transform.translation
-        p = [p.x,p.y,p.z][:len(self.js.name)]
-        p = ', '.join(f'{v: .2f}' for v in p)
+        return [p.x,p.y,p.z][:len(self.js.name)]
 
+    def print(self):
+        if self.js is None:
+            return
+        p = ', '.join(f'{v: .2f}' for v in self.sphere())
         print(f'Sphere @ ({p})')
+
+    def q(self):
+        return list(self.js.position)
 
     def now(self):
         s,ns = self.get_clock().now().seconds_nanoseconds()
@@ -52,13 +55,13 @@ class Robot(Node):
     def move(self):
         if self.js is None:
             return
-        if self.position is None:
-            self.position = [0] * len(self.js.name)
         self.cmd.name = self.js.name
         if len(self.js.name) == 2:
             self.move_rr()
         else:
             self.move_turret()
+        if self.position is None:
+            return
         self.cmd.position = [float(v) for v in self.position]
         self.cmd_pub.publish(self.cmd)
 
@@ -75,8 +78,7 @@ class Robot(Node):
 
         # TODO have the robot reach a given (x,y,z) position
 
-        self.position = [cos(t), sin(t), 0.02*cos(t)]
-        self.position = [0, 0,0.02*cos(t)]
+        self.position = [cos(t), sin(t), 0.04*cos(t)]
 
 
 rclpy.init()
