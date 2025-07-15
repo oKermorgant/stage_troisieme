@@ -3,7 +3,7 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
-from math import cos, sin, atan, atan2, acos, sqrt
+from math import cos, sin, atan, atan2, acos, sqrt, pi
 from tf2_ros import Buffer, TransformListener
 
 
@@ -30,7 +30,7 @@ class Robot(Node):
     def sphere(self):
         now = rclpy.time.Time()
         if not self.buffer.can_transform('tool0', 'base_link', now):
-            return
+            return [0,0,0][:len(self.js.name)]
         p = self.buffer.lookup_transform('tool0', 'base_link', now).transform.translation
         return [p.x,p.y,p.z][:len(self.js.name)]
 
@@ -68,13 +68,20 @@ class Robot(Node):
     def move_rr(self):
 
         t = self.now()
+        d1 = 0.2
+        d2 = 0.15
 
+        # TODO have the robot reach a given (x,y,z) position
         self.position = [cos(t), sin(t)]
 
-        # TODO have the robot reach a given (x,y) position
 
     def move_turret(self):
         t = self.now()
+
+        d1 = 0.5
+        d2 = 0.11
+
+        
 
         # TODO have the robot reach a given (x,y,z) position
 
